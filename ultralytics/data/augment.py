@@ -2193,15 +2193,18 @@ class Format:
         This function performs the following operations:
         1. Ensures the image has 3 dimensions (adds a channel dimension if needed).
         2. Transposes the image from HWC to CHW format.
+            - Input (T, H, W, C) is transposed to (C, T, H, W).
         3. Optionally flips the color channels from RGB to BGR.
         4. Converts the image to a contiguous array.
         5. Converts the Numpy array to a PyTorch tensor.
 
         Args:
-            img (np.ndarray): Input image as a Numpy array with shape (H, W, C) or (H, W).
+            img (np.ndarray): Input image as a Numpy array with shape (H, W, C), (H, W) or
+                (T, H, W, C).
 
         Returns:
-            (torch.Tensor): Formatted image as a PyTorch tensor with shape (C, H, W).
+            (torch.Tensor): Formatted image as a PyTorch tensor with shape (C, H, W) or
+                (C, T, H, W) for multi-frame input.
 
         Examples:
             >>> import numpy as np
@@ -2211,9 +2214,9 @@ class Format:
             torch.Size([3, 100, 100])
         """
         if img.ndim == 4:
-            img = img.transpose(3, 0, 1, 2)  # CTHW
-            if random.uniform(0, 1) > self.bgr and img.shape[1] == 3:
-                img = img[:, ::-1]
+            img = img.transpose(3, 0, 1, 2)  # (C, T, H, W)
+            if random.uniform(0, 1) > self.bgr and img.shape[0] == 3:
+                img = img[::-1]  # swap color channels
             img = np.ascontiguousarray(img)
             return torch.from_numpy(img)
         if len(img.shape) < 3:
