@@ -104,6 +104,7 @@ from .transformer import (
 
 __all__ = (
     "Conv",
+    "Conv3d",
     "Conv2",
     "LightConv",
     "RepConv",

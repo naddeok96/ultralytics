@@ -41,6 +41,7 @@ from ultralytics.nn.modules import (
     Classify,
     Concat,
     Conv,
+    Conv3d,
     Conv2,
     ConvTranspose,
     Detect,
