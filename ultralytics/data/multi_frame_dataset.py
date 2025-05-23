@@ -11,7 +11,11 @@ class YOLOMultiFrameDataset(YOLODataset):
         self.n_history = n_history
         self.history_dir = history_dir
         super().__init__(*args, **kwargs)
-        self.frame_lists = [self._frames_for(im) for im in self.im_files]
+        # Limit stored frame paths to n_history previous frames plus the target frame
+        self.frame_lists = [
+            self._frames_for(im)[-self.n_history - 1 :]
+            for im in self.im_files
+        ]
 
     def _frames_for(self, im_file: str) -> List[str]:
         p = Path(im_file)
