@@ -2125,7 +2125,8 @@ class Format:
 
         This method standardizes the image and instance annotations to be used by the `collate_fn` in PyTorch
         DataLoader. It processes the input labels dictionary, converting annotations to the specified format and
-        applying normalization if required.
+        applying normalization if required. Stacked-frame inputs with shape (T, H, W, C) are also supported and
+        handled by using the second and third dimensions as the image height and width.
 
         Args:
             labels (dict): A dictionary containing image and annotation data with the following keys:
@@ -2149,7 +2150,7 @@ class Format:
             >>> print(formatted_labels.keys())
         """
         img = labels.pop("img")
-        h, w = img.shape[:2]
+        h, w = img.shape[1:3] if img.ndim == 4 else img.shape[:2]
         cls = labels.pop("cls")
         instances = labels.pop("instances")
         instances.convert_bbox(format=self.bbox_format)
@@ -2162,7 +2163,7 @@ class Format:
                 masks = torch.from_numpy(masks)
             else:
                 masks = torch.zeros(
-                    1 if self.mask_overlap else nl, img.shape[0] // self.mask_ratio, img.shape[1] // self.mask_ratio
+                    1 if self.mask_overlap else nl, h // self.mask_ratio, w // self.mask_ratio
                 )
             labels["masks"] = masks
         labels["img"] = self._format_img(img)
