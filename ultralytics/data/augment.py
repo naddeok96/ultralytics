@@ -2210,6 +2210,12 @@ class Format:
             >>> print(formatted_img.shape)
             torch.Size([3, 100, 100])
         """
+        if img.ndim == 4:
+            img = img.transpose(3, 0, 1, 2)  # CTHW
+            if random.uniform(0, 1) > self.bgr and img.shape[1] == 3:
+                img = img[:, ::-1]
+            img = np.ascontiguousarray(img)
+            return torch.from_numpy(img)
         if len(img.shape) < 3:
             img = np.expand_dims(img, -1)
         img = img.transpose(2, 0, 1)

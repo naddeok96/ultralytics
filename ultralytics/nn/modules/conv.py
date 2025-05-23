@@ -9,6 +9,7 @@ import torch.nn as nn
 
 __all__ = (
     "Conv",
+    "Conv3d",
     "Conv2",
     "LightConv",
     "DWConv",
@@ -89,6 +90,30 @@ class Conv(nn.Module):
             (torch.Tensor): Output tensor.
         """
         return self.act(self.conv(x))
+
+
+class Conv3d(nn.Module):
+    """3D convolution module with batch normalization and activation."""
+
+    default_act = nn.SiLU()
+
+    def __init__(self, c1, c2, k=(3, 3, 3), s=(1, 1, 1), p=None, g=1, d=1, act=True):
+        super().__init__()
+        self.conv = nn.Conv3d(c1, c2, k, s, autopad(k, p, d), groups=g, dilation=d, bias=False)
+        self.bn = nn.BatchNorm3d(c2)
+        self.act = self.default_act if act is True else act if isinstance(act, nn.Module) else nn.Identity()
+
+    def forward(self, x):
+        x = self.act(self.bn(self.conv(x)))
+        if x.shape[2] == 1:
+            x = x.squeeze(2)
+        return x
+
+    def forward_fuse(self, x):
+        x = self.act(self.conv(x))
+        if x.shape[2] == 1:
+            x = x.squeeze(2)
+        return x
 
 
 class Conv2(Conv):
