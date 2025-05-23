@@ -10,12 +10,14 @@ from .dataset import (
     YOLODataset,
     YOLOMultiModalDataset,
 )
+from .multi_frame_dataset import YOLOMultiFrameDataset
 
 __all__ = (
     "BaseDataset",
     "ClassificationDataset",
     "SemanticDataset",
     "YOLODataset",
+    "YOLOMultiFrameDataset",
     "YOLOMultiModalDataset",
     "YOLOConcatDataset",
     "GroundingDataset",
